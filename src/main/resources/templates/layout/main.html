@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BookStore - Hệ Thống Bán Sách Trực Tuyến (24133074)</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --bs-font-sans-serif: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --accent-gradient: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            --card-hover-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: var(--bs-font-sans-serif);
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Glassmorphism Sticky Navbar */
+        .glass-header {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: #ffffff !important;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        }
+
+        .nav-pill-custom {
+            color: #cbd5e1 !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            border-radius: 50rem;
+            transition: all 0.25s ease;
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-pill-custom:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .nav-pill-admin {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .nav-pill-admin:hover {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50rem;
+            color: #ffffff;
+            padding-left: 38px;
+            padding-right: 16px;
+            font-size: 0.88rem;
+            transition: all 0.25s ease;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #818cf8;
+            color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        /* Modern Gradient Buttons */
+        .btn-gradient-primary {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 50rem;
+            font-weight: 600;
+            padding: 8px 20px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-gradient-primary:hover {
+            color: #ffffff;
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        /* Card Effects */
+        .book-card {
+            border: none;
+            border-radius: 1.25rem;
+            background: #ffffff;
+            box-shadow: var(--card-shadow);
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            padding-top: 133.33%; /* 3:4 Aspect Ratio */
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        .book-cover-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .book-card:hover .book-cover-img {
+            transform: scale(1.06);
+        }
+
+        .book-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+            padding: 4px 10px;
+            border-radius: 50rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* Modern Pagination */
+        .pagination .page-item .page-link {
+            border-radius: 50rem !important;
+            margin: 0 4px;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-weight: 600;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .pagination .page-item .page-link:hover:not(.active) {
+            background: #e0e7ff;
+            color: #4338ca;
+            border-color: #c7d2fe;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            background: #0f172a;
+            color: #94a3b8;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        footer h6 {
+            color: #f8fafc;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.25rem;
+        }
+
+        footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: #818cf8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. HEADER & STICKY NAVIGATION -->
+    <header class="glass-header py-2">
+        <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <!-- Brand Logo -->
+            <a class="brand-logo text-decoration-none" href="/home">
+                <span class="brand-icon">
+                    <i class="bi bi-book-half"></i>
+                </span>
+                <span>Book<span style="color: #a78bfa;">Store</span></span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container d-none d-md-block">
+                <form action="/home" method="get" class="m-0">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control search-input" placeholder="Tìm kiếm sách, tiêu đề...">
+                </form>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="d-flex align-items-center gap-1">
+                <a class="nav-link nav-pill-custom" href="/home">
+                    <i class="bi bi-house-door"></i> Trang Chủ
+                </a>
+                <a class="nav-link nav-pill-custom" href="/books">
+                    <i class="bi bi-grid"></i> Sản phẩm
+                </a>
+                <a class="nav-link nav-pill-custom position-relative" href="/cart">
+                    <i class="bi bi-cart3"></i> Giỏ hàng
+                    <span class="badge bg-danger rounded-pill px-2 py-1 ms-1" 
+                          th:if="${session.cart != null and session.cart.totalQuantity > 0}" 
+                          th:text="${session.cart.totalQuantity}"></span>
+                </a>
+                <a class="nav-link nav-pill-custom" href="/orders" th:if="${session.currentUser != null}">
+                    <i class="bi bi-clock-history"></i> Đơn hàng
+                </a>
+                <a class="nav-link nav-pill-custom nav-pill-admin" href="/admin/books" th:if="${session.currentUser != null and (session.currentUser.isAdmin == true or session.currentUser.admin == true)}">
+                    <i class="bi bi-shield-lock-fill"></i> Trang quản trị
+                </a>
+
+                <!-- User Account Links -->
+                <div class="ms-2 d-flex align-items-center gap-1">
+                    <a class="nav-link nav-pill-custom" href="/login" th:if="${session.currentUser == null}">
+                        <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                    </a>
+                    <a class="btn btn-sm btn-gradient-primary" href="/register" th:if="${session.currentUser == null}">
+                        <i class="bi bi-person-plus"></i> Đăng ký
+                    </a>
+
+                    <div class="d-flex align-items-center" th:if="${session.currentUser != null}">
+                        <span class="badge bg-secondary rounded-pill px-3 py-2 me-2">
+                            <i class="bi bi-person-circle me-1"></i> <span th:text="${session.currentUser.fullname}"></span>
+                        </span>
+                        <a class="btn btn-sm btn-outline-light rounded-pill px-3" href="/logout">
+                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Fragment -->
+    <main class="container my-4 flex-grow-1" layout:fragment="content"></main>
+
+    <!-- 5. FOOTER (3 COLUMNS) -->
+    <footer class="pt-5 pb-3">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <!-- Cột 1: Thông tin Sinh viên & Đề thi -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-uppercase"><i class="bi bi-mortarboard-fill text-primary me-2"></i>Thông Tin Đề Thi</h6>
+                    <p class="small mb-1"><strong>Môn học:</strong> Lập Trình Web (Spring Boot & JPA)</p>
+                    <p class="small mb-1"><strong>Họ và tên:</strong> Nguyễn Quang Vinh</p>
+                    <p class="small mb-1"><strong>Mã số sinh viên (MSSV):</strong> <span class="badge bg-primary">24133074</span></p>
+                    <p class="small mb-0"><strong>Mã đề thi:</strong> <span class="badge bg-warning text-dark">Đề số 02</span></p>
+                </div>
+
+                <!-- Cột 2: Quick Links -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-uppercase"><i class="bi bi-compass-fill text-primary me-2"></i>Liên Kết Nhanh</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a href="/home"><i class="bi bi-chevron-right me-1"></i>Trang Chủ</a></li>
+                        <li class="mb-2"><a href="/books"><i class="bi bi-chevron-right me-1"></i>Tất Cả Sản Phẩm</a></li>
+                        <li class="mb-2"><a href="/cart"><i class="bi bi-chevron-right me-1"></i>Giỏ Hàng Mua Sắm</a></li>
+                        <li class="mb-2" th:if="${session.currentUser != null}">
+                            <a href="/orders"><i class="bi bi-chevron-right me-1"></i>Lịch Sử Đặt Hàng</a>
+                        </li>
+                        <li class="mb-2" th:if="${session.currentUser != null and (session.currentUser.isAdmin == true or session.currentUser.admin == true)}">
+                            <a href="/admin/books"><i class="bi bi-chevron-right me-1"></i>Trang Quản Trị Admin</a>
+                        </li>
+                        <li class="mb-2" th:if="${session.currentUser == null}">
+                            <a href="/login"><i class="bi bi-chevron-right me-1"></i>Đăng Nhập Hệ Thống</a>
+                        </li>
+                        <li th:if="${session.currentUser == null}">
+                            <a href="/register"><i class="bi bi-chevron-right me-1"></i>Đăng Ký Tài Khoản</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Hỗ trợ & Công nghệ -->
+                <div class="col-lg-4 col-md-12">
+                    <h6 class="text-uppercase"><i class="bi bi-cpu-fill text-primary me-2"></i>Công Nghệ Sử Dụng</h6>
+                    <p class="small mb-2 text-secondary">
+                        Hệ thống xây dựng trên nền tảng <strong>Spring Boot 2.7</strong>, <strong>Thymeleaf Layout Dialect</strong>, cơ sở dữ liệu <strong>Microsoft SQL Server</strong> và giao diện <strong>Bootstrap 5.3</strong> hiện đại.
+                    </p>
+                    <div class="d-flex gap-2 text-secondary">
+                        <span class="badge bg-dark border border-secondary">Spring Boot</span>
+                        <span class="badge bg-dark border border-secondary">Hibernate JPA</span>
+                        <span class="badge bg-dark border border-secondary">SQL Server</span>
+                        <span class="badge bg-dark border border-secondary">Thymeleaf</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center pt-3 border-top border-secondary small text-secondary">
+                © 2026 BookStore Project. Thực hiện bởi <strong>Nguyễn Quang Vinh (24133074)</strong> - Đề số 02. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

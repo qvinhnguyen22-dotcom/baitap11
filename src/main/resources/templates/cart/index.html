@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+<div layout:fragment="content">
+    <!-- Breadcrumb -->
+    <div class="mb-4 d-flex align-items-center justify-content-between">
+        <a href="/books" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left"></i> Tiếp tục mua sách
+        </a>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/home" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Giỏ hàng của bạn</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Thông báo kết quả thao tác giỏ hàng -->
+    <div th:if="${cartMessage}" class="alert alert-info alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+            <span th:text="${cartMessage}"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-cart3 text-primary me-2"></i>Giỏ Hàng Của Bạn</h2>
+            <p class="text-secondary mb-0 small">Quản lý các đầu sách bạn dự định mua trước khi đặt hàng</p>
+        </div>
+        <span class="badge bg-primary rounded-pill px-3 py-2 fs-6" th:if="${cart != null and !cart.empty}">
+            <span th:text="${cart.totalQuantity}"></span> món
+        </span>
+    </div>
+
+    <!-- TRƯỜNG HỢP 1: GIỎ HÀNG TRỐNG -->
+    <div th:if="${cart == null or cart.empty}" class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 bg-white">
+        <div class="py-4">
+            <div class="mb-3 text-secondary opacity-50">
+                <i class="bi bi-cart-x" style="font-size: 5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">Giỏ hàng của bạn đang trống</h4>
+            <p class="text-secondary mb-4">Hãy khám phá kho tàng sách phong phú của chúng tôi và chọn những cuốn sách yêu thích!</p>
+            <a href="/books" class="btn btn-gradient-primary rounded-pill px-4 py-2 fw-semibold">
+                <i class="bi bi-book me-1"></i> Khám Phá Sách Ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- TRƯỜNG HỢP 2: CÓ SẢN PHẨM TRONG GIỎ HÀNG -->
+    <div th:if="${cart != null and !cart.empty}" class="row g-4">
+        <!-- Cột Trái: Bảng danh sách sản phẩm (Chiếm 8 cột) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-3">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="ps-4 py-3" style="min-width: 250px;">Sản Phẩm</th>
+                                <th scope="col" class="text-center py-3">Đơn Giá</th>
+                                <th scope="col" class="text-center py-3" style="width: 170px;">Số Lượng</th>
+                                <th scope="col" class="text-end py-3">Thành Tiền</th>
+                                <th scope="col" class="text-center pe-4 py-3" style="width: 60px;">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${cart.items}">
+                                <!-- Thông tin Sách -->
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width: 55px; height: 75px; flex-shrink: 0;" class="rounded-2 overflow-hidden border bg-light">
+                                            <img th:if="${item.coverImage != null and !item.coverImage.isEmpty()}"
+                                                 th:src="@{'/uploads/covers/' + ${item.coverImage}}"
+                                                 class="w-100 h-100 object-fit-cover"
+                                                 th:alt="${item.title}">
+                                            <div th:if="${item.coverImage == null or item.coverImage.isEmpty()}" class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                                <i class="bi bi-book"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a th:href="@{'/book/' + ${item.bookId}}" class="text-decoration-none fw-bold text-dark d-block hover-primary line-clamp-2" th:text="${item.title}"></a>
+                                            <small class="text-muted d-block" style="font-size: 0.78rem;">ISBN: <span th:text="${item.isbn}"></span></small>
+                                            <small class="badge bg-light text-secondary border rounded-pill mt-1" style="font-size: 0.72rem;">
+                                                <i class="bi bi-box-seam me-1"></i>Còn lại: <strong class="text-danger" th:text="${item.stockQuantity}"></strong> cuốn
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Đơn giá -->
+                                <td class="text-center py-3 text-nowrap">
+                                    <span class="fw-semibold text-secondary" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                </td>
+
+                                <!-- Điều khiển Số lượng (Form thay đổi trong giới hạn) -->
+                                <td class="text-center py-3">
+                                    <form th:action="@{/cart/update}" method="post" class="d-inline-flex align-items-center justify-content-center">
+                                        <input type="hidden" name="bookId" th:value="${item.bookId}">
+                                        
+                                        <div class="input-group input-group-sm" style="max-width: 130px;">
+                                            <!-- Nút giảm -->
+                                            <button type="submit" name="quantity" th:value="${item.quantity - 1}" class="btn btn-outline-secondary px-2" title="Giảm 1">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            
+                                            <!-- Input số lượng trực tiếp -->
+                                            <input type="number" name="quantity" class="form-control text-center px-1 fw-bold"
+                                                   th:value="${item.quantity}" min="1" th:max="${item.stockQuantity}"
+                                                   onchange="this.form.submit()" title="Nhập số lượng và nhấn Enter để cập nhật">
+                                            
+                                            <!-- Nút tăng (bị disabled nếu chạm trần tồn kho) -->
+                                            <button type="submit" name="quantity" th:value="${item.quantity + 1}"
+                                                    class="btn btn-outline-secondary px-2"
+                                                    th:disabled="${item.quantity >= item.stockQuantity}"
+                                                    title="Tăng 1">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <div th:if="${item.quantity >= item.stockQuantity}" class="small text-danger mt-1 fw-semibold" style="font-size: 0.7rem;">
+                                        Đã đạt giới hạn kho
+                                    </div>
+                                </td>
+
+                                <!-- Thành tiền -->
+                                <td class="text-end py-3 text-nowrap">
+                                    <span class="fw-bold text-danger fs-6" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                </td>
+
+                                <!-- Nút Xóa -->
+                                <td class="text-center pe-4 py-3">
+                                    <a th:href="@{'/cart/remove/' + ${item.bookId}}" class="btn btn-sm btn-outline-danger border-0 rounded-circle" 
+                                       onclick="return confirm('Bạn có chắc muốn xóa cuốn sách này khỏi giỏ hàng?')" title="Xóa khỏi giỏ hàng">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer hành động của giỏ hàng -->
+                <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <a href="/cart/clear" class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                       onclick="return confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng không?')">
+                        <i class="bi bi-trash me-1"></i> Xóa toàn bộ giỏ hàng
+                    </a>
+                    <a href="/books" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                        <i class="bi bi-plus-circle me-1"></i> Chọn thêm sách khác
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột Phải: Tóm tắt thanh toán & Đặt hàng COD (Chiếm 4 cột) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4 sticky-top" style="top: 85px;">
+                <h5 class="fw-bold mb-3 text-dark pb-2 border-bottom">
+                    <i class="bi bi-receipt-cutoff text-primary me-2"></i>Tóm Tắt Đơn Hàng
+                </h5>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Tổng số lượng sách:</span>
+                    <strong class="text-dark"><span th:text="${cart.totalQuantity}"></span> cuốn</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Tạm tính:</span>
+                    <strong class="text-dark" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Phí vận chuyển:</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Miễn phí (0 đ)</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Hình thức giao dịch:</span>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill">
+                        <i class="bi bi-cash-stack text-success me-1"></i> COD (Nhận hàng trả tiền)
+                    </span>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="d-flex justify-content-between align-items-baseline mb-4">
+                    <span class="fw-bold text-dark fs-6">TỔNG CỘNG:</span>
+                    <span class="display-6 fw-bold text-danger" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+
+                <!-- Nút Tiến hành Đặt hàng COD -->
+                <a href="/checkout" class="btn btn-gradient-primary w-100 py-3 rounded-pill fw-bold fs-6 shadow">
+                    <i class="bi bi-shield-check me-1"></i> TIẾN HÀNH ĐẶT HÀNG (COD)
+                </a>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted"><i class="bi bi-lock-fill text-success me-1"></i>Thanh toán an toàn khi nhận hàng tận tay</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

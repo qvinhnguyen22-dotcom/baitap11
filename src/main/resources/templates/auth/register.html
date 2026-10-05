@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+<div layout:fragment="content" class="py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                    <h2 class="fw-bold mb-1">Đăng Ký Tài Khoản</h2>
+                    <p class="text-muted small">Tạo tài khoản để nhận mã OTP xác thực qua Email</p>
+                </div>
+
+                <form action="/register" method="post" th:object="${user}">
+                    <!-- Họ và tên -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Họ và Tên:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <input type="text" th:field="*{fullname}" class="form-control bg-light border-start-0 rounded-end-3 py-2" placeholder="Ví dụ: Nguyễn Văn A" required>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Địa chỉ Email (Nhận mã OTP):</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                                <i class="bi bi-envelope-fill"></i>
+                            </span>
+                            <input type="email" th:field="*{email}" class="form-control bg-light border-start-0 rounded-end-3 py-2" placeholder="example@gmail.com" required>
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Mật khẩu:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="password" th:field="*{passwd}" class="form-control bg-light border-start-0 rounded-end-3 py-2" placeholder="Tối đa 32 ký tự" required>
+                        </div>
+                    </div>
+
+                    <!-- Số điện thoại -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Số điện thoại:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                                <i class="bi bi-telephone-fill"></i>
+                            </span>
+                            <input type="number" th:field="*{phone}" class="form-control bg-light border-start-0 rounded-end-3 py-2" placeholder="Ví dụ: 0909123456">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fs-6 rounded-pill mb-3" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none;">
+                        <i class="bi bi-send-check me-1"></i> Đăng Ký & Nhận Mã OTP
+                    </button>
+
+                    <div class="text-center pt-2 border-top">
+                        <span class="small text-muted">Đã có tài khoản?</span>
+                        <a href="/login" class="small fw-bold text-decoration-none ms-1">Đăng nhập tại đây</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill small fw-bold mb-1">
+                <i class="bi bi-shield-lock-fill"></i> QUẢN TRỊ VIÊN
+            </span>
+            <h2 class="fw-bold mb-0 text-dark">Quản Lý Danh Mục Sách</h2>
+            <small class="text-muted" th:text="'Hệ thống hiện có: ' + ${booksPage.totalElements} + ' cuốn sách'"></small>
+        </div>
+        <a href="/admin/books/create" class="btn btn-gradient-primary rounded-pill px-4">
+            <i class="bi bi-plus-circle me-1"></i> Thêm Sách Mới
+        </a>
+    </div>
+
+    <!-- Bảng Sách Admin -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase small text-secondary">
+                    <tr>
+                        <th class="text-center" style="width: 60px;">ID</th>
+                        <th class="text-center" style="width: 80px;">Ảnh Bìa</th>
+                        <th>Tiêu Đề Sách</th>
+                        <th>ISBN</th>
+                        <th>Nhà Xuất Bản</th>
+                        <th>Giá Bán</th>
+                        <th class="text-center">Kho</th>
+                        <th class="text-center" style="width: 200px;">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(booksPage.content)}">
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block opacity-50 mb-2"></i>
+                            Chưa có cuốn sách nào trong cơ sở dữ liệu.
+                        </td>
+                    </tr>
+                    <tr th:each="b : ${booksPage.content}">
+                        <td class="text-center fw-bold text-secondary" th:text="${b.bookid}"></td>
+                        <td class="text-center">
+                            <img th:if="${b.coverImage != null and !b.coverImage.isEmpty()}" 
+                                 th:src="@{'/uploads/covers/' + ${b.coverImage}}" 
+                                 width="54" height="72" 
+                                 class="rounded-3 shadow-sm border" 
+                                 style="object-fit:cover;" 
+                                 th:alt="${b.title}">
+                            <div th:if="${b.coverImage == null or b.coverImage.isEmpty()}" 
+                                 class="rounded-3 bg-light text-muted d-flex align-items-center justify-content-center border" 
+                                 style="width: 54px; height: 72px;">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <a th:href="@{'/book/' + ${b.bookid}}" class="fw-bold text-decoration-none text-dark hover-primary" th:text="${b.title}"></a>
+                            <small class="d-block text-muted" th:text="'Ngày XB: ' + ${b.publishDate}"></small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" th:text="${b.isbn}"></span>
+                        </td>
+                        <td th:text="${b.publisher}"></td>
+                        <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                        <td class="text-center">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2" th:if="${b.quantity > 0}" th:text="${b.quantity}"></span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2" th:if="${b.quantity <= 0}">Hết</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{'/book/' + ${b.bookid}}" class="btn btn-outline-info rounded-pill px-2 me-1" title="Xem chi tiết">
+                                    <i class="bi bi-eye"></i> Xem
+                                </a>
+                                <a th:href="@{'/admin/books/edit/' + ${b.bookid}}" class="btn btn-outline-warning rounded-pill px-2 me-1" title="Chỉnh sửa">
+                                    <i class="bi bi-pencil-square"></i> Sửa
+                                </a>
+                                <a th:href="@{'/admin/books/delete/' + ${b.bookid}}" class="btn btn-outline-danger rounded-pill px-2" onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này?')" title="Xóa">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân Trang Dạng Pills -->
+        <nav class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" th:if="${booksPage.totalPages > 0}">
+            <span class="text-muted small" th:text="'Trang ' + (${booksPage.number + 1}) + ' / ' + (${booksPage.totalPages > 0 ? booksPage.totalPages : 1})"></span>
+
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${!booksPage.hasPrevious()} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/books(page=${booksPage.number - 1})}">
+                        <i class="bi bi-chevron-left"></i> Trước
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, booksPage.totalPages > 0 ? booksPage.totalPages - 1 : 0)}"
+                    th:classappend="${booksPage.number == i} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/books(page=${i})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${!booksPage.hasNext()} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/books(page=${booksPage.number + 1})}">
+                        Sau <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</html>

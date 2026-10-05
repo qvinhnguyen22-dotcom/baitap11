@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 bg-white mb-4">
+                <!-- Icon thành công -->
+                <div class="mb-3 text-success">
+                    <i class="bi bi-check-circle-fill" style="font-size: 4.5rem;"></i>
+                </div>
+
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold d-inline-block mx-auto mb-2">
+                    <i class="bi bi-bag-check-fill me-1"></i> ĐẶT HÀNG THÀNH CÔNG
+                </span>
+
+                <h2 class="fw-bold text-dark mb-2">Cảm Ơn Bạn Đã Mua Sách!</h2>
+                <p class="text-secondary mb-4">
+                    Đơn hàng mã <strong class="text-primary" th:text="'#' + ${order.id}"></strong> đã được hệ thống tiếp nhận và đang sẵn sàng để xử lý.
+                </p>
+
+                <!-- Khối tóm tắt đơn hàng COD -->
+                <div class="card border bg-light-subtle rounded-4 p-4 text-start mb-4">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">Mã đơn hàng:</small>
+                            <strong class="text-dark fs-6" th:text="'#' + ${order.id}"></strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">Thời gian đặt:</small>
+                            <strong class="text-dark" th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm:ss')}"></strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">Phương thức thanh toán:</small>
+                            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">
+                                <i class="bi bi-cash-stack me-1"></i> <span th:text="${order.paymentMethod}"></span> (Thanh toán khi nhận hàng)
+                            </span>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">Trạng thái đơn hàng:</small>
+                            <span class="badge rounded-pill px-3 py-1" th:classappend="${order.statusBadgeClass}">
+                                <i th:class="'bi ' + ${order.statusIcon} + ' me-1'"></i>
+                                <span th:text="${order.status}"></span>
+                            </span>
+                        </div>
+                        <div class="col-12 pt-2 border-top">
+                            <small class="text-muted d-block">Người nhận hàng:</small>
+                            <strong class="text-dark" th:text="${order.receiverName}"></strong> - SĐT: <strong class="text-dark" th:text="${order.receiverPhone}"></strong>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Địa chỉ giao hàng:</small>
+                            <strong class="text-dark" th:text="${order.receiverAddress}"></strong>
+                        </div>
+                        <div class="col-12" th:if="${order.notes != null and !order.notes.isEmpty()}">
+                            <small class="text-muted d-block">Ghi chú:</small>
+                            <span class="text-secondary fst-italic" th:text="${order.notes}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng danh sách các sản phẩm đã đặt -->
+                <div class="card border rounded-4 overflow-hidden mb-4 text-start">
+                    <div class="card-header bg-light py-3">
+                        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-list-check me-2"></i>Danh sách sách trong đơn hàng:</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table mb-0 align-middle">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th class="ps-3">Tên Sách</th>
+                                    <th class="text-center">Số Lượng</th>
+                                    <th class="text-end">Đơn Giá</th>
+                                    <th class="text-end pe-3">Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="d : ${order.orderDetails}">
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div style="width: 40px; height: 50px; flex-shrink: 0;" class="rounded border overflow-hidden bg-light">
+                                                <img th:if="${d.book != null and d.book.coverImage != null and !d.book.coverImage.isEmpty()}"
+                                                     th:src="@{'/uploads/covers/' + ${d.book.coverImage}}"
+                                                     class="w-100 h-100 object-fit-cover"
+                                                     th:alt="${d.book.title}">
+                                            </div>
+                                            <strong class="text-dark small" th:text="${d.book != null ? d.book.title : 'Sách'}"></strong>
+                                        </div>
+                                    </td>
+                                    <td class="text-center fw-bold" th:text="${d.quantity}"></td>
+                                    <td class="text-end text-secondary" th:text="${#numbers.formatDecimal(d.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                    <td class="text-end pe-3 fw-bold text-danger" th:text="${#numbers.formatDecimal(d.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold ps-3">Tổng cộng thanh toán:</td>
+                                    <td class="text-end pe-3 fw-bold text-danger fs-5" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Các nút điều hướng -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-eye me-1"></i> Xem Chi Tiết Đơn
+                    </a>
+                    <a href="/orders" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-clock-history me-1"></i> Lịch Sử Đơn Hàng
+                    </a>
+                    <a href="/books" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-book me-1"></i> Tiếp Tục Mua Sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

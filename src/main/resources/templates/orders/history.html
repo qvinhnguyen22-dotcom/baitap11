@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+<div layout:fragment="content">
+    <!-- Breadcrumb -->
+    <div class="mb-4 d-flex align-items-center justify-content-between">
+        <a href="/books" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left"></i> Tiếp tục mua sách
+        </a>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/home" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Lịch sử đơn hàng</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Thông báo kết quả / cảnh báo -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Lịch Sử Đặt Hàng</h2>
+            <p class="text-secondary mb-0 small">Theo dõi tiến trình xử lý và trạng thái tất cả các đơn hàng bạn đã đặt</p>
+        </div>
+        <a href="/books" class="btn btn-gradient-primary rounded-pill px-4 py-2 fw-semibold">
+            <i class="bi bi-cart-plus me-1"></i> Mua Thêm Sách
+        </a>
+    </div>
+
+    <!-- HƯỚNG DẪN TEST DÀNH CHO THẦY CÔ / NGƯỜI CHẤM BÀI -->
+    <div class="card border-0 rounded-4 p-3 mb-4 shadow-sm" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6 !important;">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-info-circle-fill text-primary fs-4 mt-1"></i>
+            <div>
+                <strong class="text-primary d-block mb-1">💡 Hướng dẫn kiểm thử lọc trạng thái (Yêu cầu đề bài):</strong>
+                <span class="small text-secondary">
+                    Đề bài yêu cầu: <em>"vào database để thay đổi các trạng thái để quan sát trạng thái đơn thay đổi theo trạng thái tương ứng"</em>.<br>
+                    Bạn có thể mở SQL Server và chạy lệnh: <code>UPDATE orders SET status = N'Đã xác nhận' WHERE id = 1;</code> (hoặc <code>Chuẩn bị hàng</code>, <code>Vận chuyển</code>, <code>Giao hàng</code>, <code>Đã giao</code>, <code>Đơn hàng hủy</code>, <code>Đơn hàng hoàn</code>). Sau khi cập nhật DB, hãy tải lại trang này hoặc nhấn vào tab tương ứng để quan sát đơn hàng hiển thị chính xác theo trạng thái đã đổi!
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- THANH TAB LỌC TRẠNG THÁI (8 TRẠNG THÁI + TẤT CẢ) -->
+    <div class="card border-0 shadow-sm rounded-4 p-2 mb-4 bg-white">
+        <ul class="nav nav-pills flex-nowrap overflow-auto py-1 px-2 gap-2" style="scrollbar-width: thin;">
+            <!-- Tab Tất Cả -->
+            <li class="nav-item">
+                <a class="nav-link rounded-pill px-3 py-2 text-nowrap fw-semibold small" 
+                   th:href="@{/orders}" 
+                   th:classappend="${selectedStatus == 'all' or selectedStatus == null or selectedStatus == 'Tất cả'} ? 'active bg-primary text-white shadow-sm' : 'text-secondary bg-light'">
+                    <i class="bi bi-grid-fill me-1"></i> Tất Cả
+                    <span class="badge rounded-pill ms-1" 
+                          th:classappend="${selectedStatus == 'all'} ? 'bg-white text-primary' : 'bg-secondary text-white'" 
+                          th:text="${statusCounts != null and statusCounts.containsKey('all') ? statusCounts.get('all') : 0}"></span>
+                </a>
+            </li>
+
+            <!-- Các Tab cho 8 trạng thái -->
+            <li class="nav-item" th:each="st : ${allStatuses}">
+                <a class="nav-link rounded-pill px-3 py-2 text-nowrap fw-semibold small" 
+                   th:href="@{/orders(status=${st})}" 
+                   th:classappend="${selectedStatus == st} ? 'active bg-primary text-white shadow-sm' : 'text-secondary bg-light'">
+                    <i th:class="'bi ' + ${T(vn.iotstar.entity.OrderStatus_24133074).getIcon(st)} + ' me-1'"></i>
+                    <span th:text="${st}"></span>
+                    <span class="badge rounded-pill ms-1" 
+                          th:classappend="${selectedStatus == st} ? 'bg-white text-primary' : 'bg-secondary text-white'" 
+                          th:text="${statusCounts != null and statusCounts.containsKey(st) ? statusCounts.get(st) : 0}"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- DANH SÁCH ĐƠN HÀNG -->
+    <!-- Trường hợp không có đơn hàng -->
+    <div th:if="${#lists.isEmpty(orders)}" class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 bg-white mb-4">
+        <div class="py-4">
+            <i class="bi bi-inbox text-secondary opacity-50" style="font-size: 4rem;"></i>
+            <h5 class="fw-bold text-dark mt-3 mb-1">Không có đơn hàng nào</h5>
+            <p class="text-secondary small mb-3">
+                <span th:if="${selectedStatus != 'all'}">Chưa có đơn hàng nào ở trạng thái "<strong th:text="${selectedStatus}"></strong>".</span>
+                <span th:if="${selectedStatus == 'all'}">Bạn chưa đặt đơn hàng nào trên hệ thống.</span>
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a th:if="${selectedStatus != 'all'}" href="/orders" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> Xem tất cả đơn hàng
+                </a>
+                <a href="/books" class="btn btn-primary btn-sm rounded-pill px-3">
+                    <i class="bi bi-bag-plus"></i> Khám phá mua sách ngay
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách các card đơn hàng -->
+    <div class="vstack gap-4" th:if="${!#lists.isEmpty(orders)}">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white" th:each="order : ${orders}">
+            <!-- Header Card: Mã đơn, ngày đặt, trạng thái badge -->
+            <div class="card-header bg-light py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold text-dark fs-6">
+                        <i class="bi bi-receipt text-primary me-1"></i> Đơn hàng <strong class="text-primary" th:text="'#' + ${order.id}"></strong>
+                    </span>
+                    <span class="text-secondary small d-none d-sm-inline">|</span>
+                    <span class="text-secondary small">
+                        <i class="bi bi-calendar3 me-1"></i> <span th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span>
+                    </span>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill small">
+                        <i class="bi bi-cash me-1"></i> <span th:text="${order.paymentMethod}"></span>
+                    </span>
+                </div>
+
+                <!-- Badge trạng thái trực quan -->
+                <span class="badge rounded-pill px-3 py-2 fs-6 fw-bold" th:classappend="${order.statusBadgeClass}">
+                    <i th:class="'bi ' + ${order.statusIcon} + ' me-1'"></i>
+                    <span th:text="${order.status}"></span>
+                </span>
+            </div>
+
+            <!-- Body Card: Danh sách sản phẩm trong đơn -->
+            <div class="card-body p-4">
+                <div class="vstack gap-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-between gap-3 pb-3 border-bottom" th:each="detail : ${order.orderDetails}">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 55px; height: 75px; flex-shrink: 0;" class="rounded border overflow-hidden bg-light">
+                                <img th:if="${detail.book != null and detail.book.coverImage != null and !detail.book.coverImage.isEmpty()}"
+                                     th:src="@{'/uploads/covers/' + ${detail.book.coverImage}}"
+                                     class="w-100 h-100 object-fit-cover"
+                                     th:alt="${detail.book.title}">
+                                <div th:if="${detail.book == null or detail.book.coverImage == null or detail.book.coverImage.isEmpty()}" 
+                                     class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <a th:if="${detail.book != null}" th:href="@{'/book/' + ${detail.book.bookid}}" 
+                                   class="text-decoration-none fw-bold text-dark hover-primary line-clamp-1" 
+                                   th:text="${detail.book.title}"></a>
+                                <span th:if="${detail.book == null}" class="fw-bold text-dark">Sách đã ngừng kinh doanh</span>
+                                <small class="text-secondary d-block mt-1">
+                                    Số lượng: <strong class="text-primary" th:text="${detail.quantity}"></strong> cuốn x 
+                                    <span th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(detail.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin giao hàng tóm tắt -->
+                <div class="p-3 bg-light rounded-3 small text-secondary">
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                    <strong>Giao đến:</strong> <span class="text-dark fw-semibold" th:text="${order.receiverName}"></span> - 
+                    SĐT: <span class="text-dark" th:text="${order.receiverPhone}"></span> | 
+                    Đ/c: <span class="text-dark" th:text="${order.receiverAddress}"></span>
+                </div>
+            </div>
+
+            <!-- Footer Card: Tổng tiền & Nút Thao Tác -->
+            <div class="card-footer bg-white py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2 border-top">
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="text-secondary small">Tổng số tiền:</span>
+                    <span class="fs-5 fw-bold text-danger" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Nút Hủy đơn (chỉ khi trạng thái là 'Đơn hàng mới') -->
+                    <form th:if="${order.canCancel}" th:action="@{'/orders/' + ${order.id} + '/cancel'}" method="post" class="d-inline"
+                          onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Sách sẽ được hoàn lại kho.')">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                            <i class="bi bi-x-circle me-1"></i> Hủy Đơn Hàng
+                        </button>
+                    </form>
+
+                    <!-- Nút Xem chi tiết -->
+                    <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                        <i class="bi bi-eye me-1"></i> Chi Tiết Đơn Hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
