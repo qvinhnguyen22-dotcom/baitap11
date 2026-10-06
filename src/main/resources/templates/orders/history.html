@@ -42,15 +42,26 @@
     </div>
 
     <!-- HƯỚNG DẪN TEST DÀNH CHO THẦY CÔ / NGƯỜI CHẤM BÀI -->
-    <div class="card border-0 rounded-4 p-3 mb-4 shadow-sm" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6 !important;">
-        <div class="d-flex align-items-start gap-3">
-            <i class="bi bi-info-circle-fill text-primary fs-4 mt-1"></i>
-            <div>
-                <strong class="text-primary d-block mb-1">💡 Hướng dẫn kiểm thử lọc trạng thái (Yêu cầu đề bài):</strong>
-                <span class="small text-secondary">
-                    Đề bài yêu cầu: <em>"vào database để thay đổi các trạng thái để quan sát trạng thái đơn thay đổi theo trạng thái tương ứng"</em>.<br>
-                    Bạn có thể mở SQL Server và chạy lệnh: <code>UPDATE orders SET status = N'Đã xác nhận' WHERE id = 1;</code> (hoặc <code>Chuẩn bị hàng</code>, <code>Vận chuyển</code>, <code>Giao hàng</code>, <code>Đã giao</code>, <code>Đơn hàng hủy</code>, <code>Đơn hàng hoàn</code>). Sau khi cập nhật DB, hãy tải lại trang này hoặc nhấn vào tab tương ứng để quan sát đơn hàng hiển thị chính xác theo trạng thái đã đổi!
-                </span>
+    <div class="card border-0 rounded-4 mb-4 shadow-sm overflow-hidden" style="border-left: 5px solid #3b82f6 !important;">
+        <div class="p-3 d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);" data-bs-toggle="collapse" data-bs-target="#sqlGuide" role="button">
+            <i class="bi bi-database-fill-gear text-primary fs-5"></i>
+            <strong class="text-primary">💡 Hướng dẫn test lọc trạng thái qua DB (nhấn để xem/ẩn)</strong>
+            <i class="bi bi-chevron-down ms-auto text-primary"></i>
+        </div>
+        <div class="collapse show" id="sqlGuide" style="background: #f8fbff;">
+            <div class="p-3 small text-secondary">
+                <p class="mb-2">Đề bài yêu cầu: <em>"vào database để thay đổi các trạng thái để quan sát trạng thái đơn thay đổi theo trạng thái tương ứng"</em>. Chạy từng lệnh SQL dưới đây trong SQL Server Management Studio hoặc <code>sqlcmd</code>, sau đó reload trang:</p>
+                <div class="row g-2">
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Đơn hàng mới' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Đã xác nhận' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Chuẩn bị hàng' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Vận chuyển' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Giao hàng' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Đã giao' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Đơn hàng hủy' WHERE id = 1;</code></div>
+                    <div class="col-md-6"><code class="d-block bg-white border rounded p-2 text-dark">UPDATE orders SET status = N'Đơn hàng hoàn' WHERE id = 1;</code></div>
+                </div>
+                <p class="mt-2 mb-0 text-primary fw-semibold"><i class="bi bi-arrow-right-circle me-1"></i>Sau mỗi lệnh UPDATE, nhấn vào tab trạng thái tương ứng để xem đơn hàng di chuyển đúng tab!</p>
             </div>
         </div>
     </div>
